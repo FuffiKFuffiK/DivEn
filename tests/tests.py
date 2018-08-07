@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib/RSPT'))
 
 import supp
 import mol_io
+import RSPT
 
 
 class TestExceptionMethods(unittest.TestCase):
@@ -122,6 +123,21 @@ class TestIOMethods(unittest.TestCase):
         self.assertListEqual(coefs.iloc[0].tolist(), [3, 0, 0, -258.4])
         self.assertListEqual(coefs.iloc[4].tolist(), [1, 1, 1, -15.4])
         self.assertListEqual(coefs.iloc[24].tolist(), [0, 0, 4, 62])
+
+
+class TestRSPTMethods(unittest.TestCase):
+    """Class for testing RSPT methods
+    """
+
+    def test_zero_approximation(self):
+        """Testing zero order approximation
+        """
+
+        ans = [(0, 0, 0, 0), (0, 0, 1, 3), (0, 1, 0, 2), (0, 2, 0, 4), (1, 0, 0, 1), (1, 0, 1, 4),
+               (1, 1, 0, 3), (2, 0, 0, 2), (2, 1, 0, 4), (3, 0, 0, 3), (4, 0, 0, 4)]
+        self.assertListEqual(list(RSPT.gen_zero_approximation(0, 4, [1, 2, 3])), ans)
+        states = RSPT.zero_approximation(200, [1, 2, 3])
+        self.assertEqual(len(states), 223872)
 
 
 if __name__ == '__main__':
