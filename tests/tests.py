@@ -4,10 +4,100 @@
 import sys
 import os
 import unittest
+import io
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib/RSPT'))
 
+import supp
 import mol_io
+
+
+class TestExceptionMethods(unittest.TestCase):
+    """Class for testing supplementary methods
+    """
+
+    def test_div_zero(self):
+        """Testing division by zero exception
+        """
+        try:
+            print(1/0)
+        except ZeroDivisionError:
+            f, n, ln, obj, err_type = supp.PrintException()
+        finally:
+            self.assertEqual(f, 'tests.py')
+            self.assertEqual(ln, 'print(1/0)')
+            self.assertEqual(str(obj), 'division by zero')
+            self.assertIs(err_type, ZeroDivisionError)
+            self.assertIsInstance(n, int)
+
+
+    def test_index_error(self):
+        """Testing index error exception (index out of range)
+        """
+        try:
+            l = []
+            print(l[0])
+        except IndexError:
+            f, n, ln, obj, err_type = supp.PrintException()
+        finally:
+            self.assertEqual(f, 'tests.py')
+            self.assertEqual(ln, 'print(l[0])')
+            self.assertEqual(str(obj), 'list index out of range')
+            self.assertIs(err_type, IndexError)
+            self.assertIsInstance(n, int)
+
+
+    def test_sys_info(self):
+        """Testing printing system info
+        """
+
+        f, n, ln = supp.PrintSysExitInfo()
+        self.assertEqual(f, 'tests.py')
+        self.assertEqual(ln, '"""')
+        self.assertIsInstance(n, int)
+
+
+    def test_timing_decorator(self):
+        """Test timing decorator
+        """
+
+        @supp.timing
+        def hold(sec):
+            """Hold for 'sec' seconds
+            """
+            time.sleep(sec)
+            return 1
+
+        capturedOutput = io.StringIO()
+        sys.stdout = capturedOutput
+        hold(0.1)
+        sys.stdout = sys.__stdout__
+        self.assertAlmostEqual(0.1, float(capturedOutput.getvalue().split()[3]), places=1)
+
+
+    def test_reader_class(self):
+        """Test reader class
+        """
+
+        def g(k):
+            """Test generator
+            """
+            for i in range(k):
+                yield i
+        A = supp.Reader(g(5))
+
+        self.assertEqual(int(A.read()), 0)
+        self.assertEqual(int(A.read()), 1)
+
+        with self.assertRaises(TypeError):
+            A = supp.Reader(3)
+
+        with self.assertRaises(TypeError):
+            A = supp.Reader(range(5))
+
+        self.assertEqual(int(A.read()), 2)
+
 
 class TestIOMethods(unittest.TestCase):
     """Class for testing IO methods
