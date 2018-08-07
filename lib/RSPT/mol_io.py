@@ -12,7 +12,7 @@ def read_freqs(fname):
     return pd.read_csv(fname, delim_whitespace=True, header=None, names=['omega'])
 
 
-def read_anh_coef(fname):
+def read_anh_coefs(fname):
     """Method to read anharmonic coefficents of the potential energy function
     of the molecule into Pandas DataFrame
     """
@@ -20,8 +20,10 @@ def read_anh_coef(fname):
     f = open(fname)
 
     labels = []
-    for i in range(len(f.readline.split() - 1)):
-        labels.append('k' + str(i))
+    for i in range(len(f.readline().split()) - 1):
+        labels.append('ik' + str(i + 1))
     labels.append('k')
+
+    f.close()
 
     return pd.read_csv(fname, delim_whitespace=True, header=None, names=labels)
