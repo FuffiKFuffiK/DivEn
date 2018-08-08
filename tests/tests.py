@@ -138,6 +138,7 @@ class TestRSPTMethods(unittest.TestCase):
         self.assertListEqual(list(RSPT.gen_zero_approximation(0, 4, [1, 2, 3])), ans)
         states = RSPT.zero_approximation(200, [1, 2, 3])
         self.assertEqual(len(states), 223872)
+        print(states)
 
 
 if __name__ == '__main__':

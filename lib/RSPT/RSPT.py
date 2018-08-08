@@ -65,4 +65,7 @@ def zero_approximation(Emax, freqs):
     zero_states = pd.DataFrame(data=gen_zero_approximation(sum(freqs) / 2, Emax, freqs),
                                columns=labels)
 
+    zero_states.sort_values(by=['E'] + labels[:-1], inplace=True)
+    zero_states.index = range(len(zero_states))
+
     return zero_states
