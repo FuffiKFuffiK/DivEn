@@ -163,5 +163,36 @@ class TestHarmOscillatorMethods(unittest.TestCase):
         self.assertEqual(harm_oscill.ZeroEl(9, 3), True)
 
 
+    def test_mat_el_weights(self):
+        """Test calculation of weights for matrix elements
+        """
+
+        self.assertAlmostEqual(harm_oscill.MatElWeight(0, 0, 15), 1, places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(1, 1, 2), 1, places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(2, 2, 2), 0.7071067810, places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(2, 0, 2), 2.5, places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(3, 3, 2), 0., places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(3, 1, 2), 3., places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(4, 4, 2), 0., places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(4, 2, 2), 2.121320343, places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(4, 0, 2), 9.75, places=8)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(5, 5, 9), 21.73706511)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(5, 3, 9), 158.7450786, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(5, 1, 9), 432.2190198, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 6, 9), 30.74085230, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 4, 9), 309.3238593, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 2, 9), 1161.422888, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 0, 9), 2173.125000, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 7, 9), 37.64970119, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 5, 9), 532.5580950, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 3, 9), 2708.587904, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 1, 9), 6932.740046, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 8, 9), 37.64970119, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 6, 9), 799.2621590, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 4, 9), 5533.460149, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 2, 9), 18932.78406, places=4)
+        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 0, 9), 37019.06247, places=4)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
