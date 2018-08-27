@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib/RSPT'))
 import supp
 import mol_io
 import RSPT
+import harm_oscill
 
 
 class TestExceptionMethods(unittest.TestCase):
@@ -138,6 +139,28 @@ class TestRSPTMethods(unittest.TestCase):
         self.assertListEqual(list(RSPT.gen_zero_approximation(0, 4, [1, 2, 3])), ans)
         states = RSPT.zero_approximation(200, [1, 2, 3])
         self.assertEqual(len(states), 223872)
+
+
+class TestHarmOscillatorMethods(unittest.TestCase):
+    """Class for testing Harmonic oscillator methods
+    """
+
+    def test_zero_elements(self):
+        """Test for correctness for defining zero elements
+        """
+
+        self.assertEqual(harm_oscill.ZeroEl(0, 0), False)
+        self.assertEqual(harm_oscill.ZeroEl(2, 0), False)
+        self.assertEqual(harm_oscill.ZeroEl(4, 2), False)
+        self.assertEqual(harm_oscill.ZeroEl(1, 1), False)
+        self.assertEqual(harm_oscill.ZeroEl(3, 1), False)
+        self.assertEqual(harm_oscill.ZeroEl(3, 3), False)
+        self.assertEqual(harm_oscill.ZeroEl(8, 4), False)
+        self.assertEqual(harm_oscill.ZeroEl(2, 3), True)
+        self.assertEqual(harm_oscill.ZeroEl(2, 4), True)
+        self.assertEqual(harm_oscill.ZeroEl(4, 3), True)
+        self.assertEqual(harm_oscill.ZeroEl(2, 1), True)
+        self.assertEqual(harm_oscill.ZeroEl(9, 3), True)
 
 
 if __name__ == '__main__':
