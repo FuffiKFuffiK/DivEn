@@ -6,6 +6,7 @@ import os
 import unittest
 import io
 import time
+import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib/RSPT'))
 
@@ -130,6 +131,14 @@ class TestRSPTMethods(unittest.TestCase):
     """Class for testing RSPT methods
     """
 
+    def setUp(self):
+        """Setting up test objects
+        """
+        path = os.path.join(os.path.dirname(__file__), '../etc/NO2_test_input/')
+        self.fname_freqs = path + 'Frequencies.txt'
+        self.fname_coefs = path + 'Anh_coefs.txt'
+
+
     def test_zero_approximation(self):
         """Testing zero order approximation
         """
@@ -141,57 +150,62 @@ class TestRSPTMethods(unittest.TestCase):
         self.assertEqual(len(states), 223872)
 
 
+    def test_fill_perturb_mat(self):
+        """Testing filling perturbation matrix
+        """
+
+        freqs = mol_io.read_freqs(self.fname_freqs)
+        anh_coefs = mol_io.read_anh_coefs(self.fname_coefs)
+        zero_states = RSPT.zero_approximation(10000, freqs['omega'])
+        zero_states = zero_states[zero_states['v3'] % 2 == 1]
+        zero_states.index = range(len(zero_states))
+        print(zero_states)
+        Wmat = RSPT.fill_wmat2(anh_coefs, zero_states)
+        Hmat = Wmat
+        Hmat.flat[::Hmat.shape[0] + 1] += zero_states['E']
+        time1 = time.time()
+        Eigh_values, Eigh_vectors = np.linalg.eigh(Hmat)
+        time2 = time.time()
+        print(Eigh_values)
+        print('Matrix diagonalisation took {} s'.format(time2 - time1))
+
+
+
 class TestHarmOscillatorMethods(unittest.TestCase):
     """Class for testing Harmonic oscillator methods
     """
-
-    def test_zero_elements(self):
-        """Test for correctness for defining zero elements
-        """
-
-        self.assertEqual(harm_oscill.ZeroEl(0, 0), False)
-        self.assertEqual(harm_oscill.ZeroEl(2, 0), False)
-        self.assertEqual(harm_oscill.ZeroEl(4, 2), False)
-        self.assertEqual(harm_oscill.ZeroEl(1, 1), False)
-        self.assertEqual(harm_oscill.ZeroEl(3, 1), False)
-        self.assertEqual(harm_oscill.ZeroEl(3, 3), False)
-        self.assertEqual(harm_oscill.ZeroEl(8, 4), False)
-        self.assertEqual(harm_oscill.ZeroEl(2, 3), True)
-        self.assertEqual(harm_oscill.ZeroEl(2, 4), True)
-        self.assertEqual(harm_oscill.ZeroEl(4, 3), True)
-        self.assertEqual(harm_oscill.ZeroEl(2, 1), True)
-        self.assertEqual(harm_oscill.ZeroEl(9, 3), True)
-
 
     def test_mat_el_weights(self):
         """Test calculation of weights for matrix elements
         """
 
-        self.assertAlmostEqual(harm_oscill.MatElWeight(0, 0, 15), 1, places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(1, 1, 2), 1, places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(2, 2, 2), 0.7071067810, places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(2, 0, 2), 2.5, places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(3, 3, 2), 0., places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(3, 1, 2), 3., places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(4, 4, 2), 0., places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(4, 2, 2), 2.121320343, places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(4, 0, 2), 9.75, places=8)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(5, 5, 9), 21.73706511)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(5, 3, 9), 158.7450786, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(5, 1, 9), 432.2190198, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 6, 9), 30.74085230, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 4, 9), 309.3238593, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 2, 9), 1161.422888, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(6, 0, 9), 2173.125000, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 7, 9), 37.64970119, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 5, 9), 532.5580950, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 3, 9), 2708.587904, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(7, 1, 9), 6932.740046, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 8, 9), 37.64970119, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 6, 9), 799.2621590, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 4, 9), 5533.460149, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 2, 9), 18932.78406, places=4)
-        self.assertAlmostEqual(harm_oscill.MatElWeight(8, 0, 9), 37019.06247, places=4)
+        Weights_dict = harm_oscill.MatElWeightDict(15)
+
+        self.assertAlmostEqual(Weights_dict[(0, 0, 15)], 1, places=8)
+        self.assertAlmostEqual(Weights_dict[(1, 1, 2)], 1, places=8)
+        self.assertAlmostEqual(Weights_dict[(2, 2, 2)], 0.7071067810, places=8)
+        self.assertAlmostEqual(Weights_dict[(2, 0, 2)], 2.5, places=8)
+        self.assertAlmostEqual(Weights_dict[(3, 3, 2)], 0., places=8)
+        self.assertAlmostEqual(Weights_dict[(3, 1, 2)], 3., places=8)
+        self.assertAlmostEqual(Weights_dict[(4, 4, 2)], 0., places=8)
+        self.assertAlmostEqual(Weights_dict[(4, 2, 2)], 2.121320343, places=8)
+        self.assertAlmostEqual(Weights_dict[(4, 0, 2)], 9.75, places=8)
+        self.assertAlmostEqual(Weights_dict[(5, 5, 9)], 21.73706511)
+        self.assertAlmostEqual(Weights_dict[(5, 3, 9)], 158.7450786, places=4)
+        self.assertAlmostEqual(Weights_dict[(5, 1, 9)], 432.2190198, places=4)
+        self.assertAlmostEqual(Weights_dict[(6, 6, 9)], 30.74085230, places=4)
+        self.assertAlmostEqual(Weights_dict[(6, 4, 9)], 309.3238593, places=4)
+        self.assertAlmostEqual(Weights_dict[(6, 2, 9)], 1161.422888, places=4)
+        self.assertAlmostEqual(Weights_dict[(6, 0, 9)], 2173.125000, places=4)
+        self.assertAlmostEqual(Weights_dict[(7, 7, 9)], 37.64970119, places=4)
+        self.assertAlmostEqual(Weights_dict[(7, 5, 9)], 532.5580950, places=4)
+        self.assertAlmostEqual(Weights_dict[(7, 3, 9)], 2708.587904, places=4)
+        self.assertAlmostEqual(Weights_dict[(7, 1, 9)], 6932.740046, places=4)
+        self.assertAlmostEqual(Weights_dict[(8, 8, 9)], 37.64970119, places=4)
+        self.assertAlmostEqual(Weights_dict[(8, 6, 9)], 799.2621590, places=4)
+        self.assertAlmostEqual(Weights_dict[(8, 4, 9)], 5533.460149, places=4)
+        self.assertAlmostEqual(Weights_dict[(8, 2, 9)], 18932.78406, places=4)
+        self.assertAlmostEqual(Weights_dict[(8, 0, 9)], 37019.06247, places=4)
 
 
 if __name__ == '__main__':
