@@ -41,7 +41,7 @@ def write_states(fname, states):
     Possible options: zero_states, vib_states, etc.
     """
 
-    fmt = '%4d ' * (len(states) - 1)
+    fmt = '%4d ' * (len(states.columns) - 1)
     fmt = fmt + '%24.16f'
     np.savetxt(fname, states.values, fmt=fmt)
     return 1

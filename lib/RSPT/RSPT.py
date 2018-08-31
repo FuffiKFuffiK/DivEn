@@ -148,7 +148,7 @@ def add_zero_approx(Wmat, zero_states):
 
 
 @supp.timing
-def diag_hmat(Hmat, zero_states):
+def diag_hmat(Hmat, zero_states, E0=None):
     """Procedure to add zero order approximation
     to the perturbation matrix
 
@@ -170,9 +170,16 @@ def diag_hmat(Hmat, zero_states):
 
     #Creating and filling new DataFrame for vibrational states
     vib_states = zero_states
+    #Assignment by largest coefficient in wavefunction
     new_index = np.square(np.absolute(Eigh_vectors)).argmax(axis=1)
     vib_states.index = new_index
     vib_states.sort_index(inplace=True)
     vib_states['E'] = Eigh_values
+    vib_states.index = range(len(vib_states))
+
+    if E0 is None:
+        E0 = vib_states.iloc[0]['E']
+
+    vib_states['E'] -= E0
 
     return vib_states

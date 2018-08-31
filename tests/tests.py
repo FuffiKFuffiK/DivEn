@@ -6,7 +6,6 @@ import os
 import unittest
 import io
 import time
-import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../lib/RSPT'))
 
@@ -150,8 +149,8 @@ class TestRSPTMethods(unittest.TestCase):
         self.assertEqual(len(states), 223872)
 
 
-    def test_fill_perturb_mat(self):
-        """Testing filling perturbation matrix
+    def test_variational_method(self):
+        """Testing filling and diagonalisation of hamiltonian matrix
         """
 
         freqs = mol_io.read_freqs(self.fname_freqs)
@@ -159,18 +158,28 @@ class TestRSPTMethods(unittest.TestCase):
         zero_states = RSPT.zero_approximation(13000, freqs['omega'])
         zero_states = zero_states[zero_states['v3'] % 2 == 1]
         zero_states.index = range(len(zero_states))
-        print(zero_states)
+        self.assertAlmostEqual(zero_states.iloc[0]['E'], 3557.2)
+        self.assertEqual(zero_states.loc[19]['v1'], 3)
+        self.assertEqual(zero_states.loc[19]['v2'], 1)
+        self.assertEqual(zero_states.loc[19]['v3'], 1)
+        self.assertAlmostEqual(zero_states.loc[19]['E'], 8384.7)
         Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
-        Hmat = Wmat
-        Hmat.flat[::Hmat.shape[0] + 1] += zero_states['E']
-        time1 = time.time()
-        for i in range(85):
-            print(Hmat[1, i])
-        Eigh_values, _ = np.linalg.eigh(Hmat)
-        time2 = time.time()
-        Eigh_values -= 1879.8061137558
-        print(Eigh_values)
-        print('Matrix diagonalisation took {} s'.format(time2 - time1))
+        self.assertAlmostEqual(Wmat[0, 4], 8.175)
+        self.assertAlmostEqual(Wmat[0, 7], 17.7)
+        self.assertAlmostEqual(Wmat[0, 15], -3.85)
+        self.assertAlmostEqual(Wmat[1, 6], -19.75)
+        self.assertAlmostEqual(Wmat[1, 27], -25.35)
+        self.assertEqual(Wmat[1, 37], 0)
+        Hmat = RSPT.add_zero_approx(Wmat, zero_states)
+        vib_states = RSPT.diag_hmat(Hmat, zero_states, E0=1879.806113755815)
+        self.assertAlmostEqual(vib_states.loc[0]['E'], 1628.63798506)
+        self.assertEqual(vib_states.loc[20]['v1'], 0)
+        self.assertEqual(vib_states.loc[20]['v2'], 2)
+        self.assertEqual(vib_states.loc[20]['v3'], 3)
+        self.assertAlmostEqual(vib_states.loc[17]['E'], 6001.82334218)
+        self.assertAlmostEqual(vib_states.loc[84]['E'], 13678.9887192)
+        path = os.path.join(os.path.dirname(__file__), '../etc/NO2_test_output/')
+        mol_io.write_states(path + 'vib_states.txt', vib_states)
 
 
 class TestHarmOscillatorMethods(unittest.TestCase):
