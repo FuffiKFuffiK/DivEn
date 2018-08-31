@@ -2,6 +2,7 @@
 """
 
 import pandas as pd
+import numpy as np
 
 
 def read_freqs(fname):
@@ -27,3 +28,20 @@ def read_anh_coefs(fname):
     f.close()
 
     return pd.read_csv(fname, delim_whitespace=True, header=None, names=labels)
+
+
+def write_states(fname, states):
+    """Method to quickly read richmol format states file into a single pandas dataframe
+
+    Parameters
+    ----------
+    fname : str
+        Name of States file.
+    states : Pandas DataFrame, containing information about states
+    Possible options: zero_states, vib_states, etc.
+    """
+
+    fmt = '%4d ' * (len(states) - 1)
+    fmt = fmt + '%24.16f'
+    np.savetxt(fname, states.values, fmt=fmt)
+    return 1
