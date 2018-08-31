@@ -98,6 +98,7 @@ def fill_wmat(anh_coefs, zero_states):
     N = len(zero_states)
     Nv = len(zero_states.columns) - 1
     Wmat = np.empty(shape=(N, N))
+
     for i in range(N):
         for j in range(i, N):
             Wmat[i, j] = 0
@@ -129,6 +130,7 @@ def fill_wmat(anh_coefs, zero_states):
     return Wmat
 
 
+@supp.timing
 def fill_wmat2(anh_coefs, zero_states):
     """Procedure to fill perturbation matrix as a
     system of anharmonic oscillators
@@ -150,22 +152,37 @@ def fill_wmat2(anh_coefs, zero_states):
 
     v = []
     dv = []
-    vmax = []
+    vmat = []
     N = len(zero_states)
     Nv = len(zero_states.columns) - 1
-    Hmat = np.zeros(shape=(N, N))
+    Wmat = np.zeros(shape=(N, N))
 
+    nmax = anh_coefs[anh_coefs.columns[:-1]].max().max()
+    vmax = zero_states[zero_states.columns[:-1]].max().max()
+
+    Weights_dict = harm_oscill.MatElWeightDict(vmax, n=nmax)
+
+    coef_ind = np.array(anh_coefs[anh_coefs.columns[:-1]])
     for i in range(Nv):
         v.append(np.array(zero_states['v' + str(i + 1)]))
         dv.append(abs(v[-1] - v[-1][:, np.newaxis]))
-        vmax.append(np.maximum(v[-1], v[-1][:, np.newaxis]))
+        vmat.append(np.maximum(v[-1], v[-1][:, np.newaxis]))
 
-    for k, coef in enumerate(anh_coefs['k']):
-        for i in range(Nv):
-            delta = anh_coefs.iloc[k]['ik' + str(i + 1)]
-            while delta >= 0:
-                indices = dv[i].where(dv[i] == delta)
-                Hmat[indices] += harm_oscill.MatElWeight(k, delta, v[i][indices]) * coef
+    for i in range(N):
+        for j in range(i, N):
+            for k, coef in enumerate(anh_coefs['k']):
+                if i == 0 and j == 4:
+                    print([(coef_ind[k][l], dv[l][i][j], vmat[l][i][j]) for l in range(Nv)])
+                p = [Weights_dict.get((coef_ind[k][l], dv[l][i][j], vmat[l][i][j])) for l in range(Nv)]
+                if i == 0 and j == 4:
+                    print(p)
+                    print(coef)
+                if all(p):
+                    Wmat[i, j] += np.prod(p) * coef
+            #if j == 1:
+            #    sys.exit()
 
+    i_lower = np.tril_indices(N, -1)
+    Wmat[i_lower] = Wmat.T[i_lower]
 
-    return 0
+    return Wmat

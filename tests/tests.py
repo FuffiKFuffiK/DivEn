@@ -156,7 +156,7 @@ class TestRSPTMethods(unittest.TestCase):
 
         freqs = mol_io.read_freqs(self.fname_freqs)
         anh_coefs = mol_io.read_anh_coefs(self.fname_coefs)
-        zero_states = RSPT.zero_approximation(10000, freqs['omega'])
+        zero_states = RSPT.zero_approximation(13000, freqs['omega'])
         zero_states = zero_states[zero_states['v3'] % 2 == 1]
         zero_states.index = range(len(zero_states))
         print(zero_states)
@@ -164,11 +164,13 @@ class TestRSPTMethods(unittest.TestCase):
         Hmat = Wmat
         Hmat.flat[::Hmat.shape[0] + 1] += zero_states['E']
         time1 = time.time()
+        for i in range(85):
+            print(Hmat[1, i])
         Eigh_values, Eigh_vectors = np.linalg.eigh(Hmat)
         time2 = time.time()
+        Eigh_values -= 1879.8061137558
         print(Eigh_values)
         print('Matrix diagonalisation took {} s'.format(time2 - time1))
-
 
 
 class TestHarmOscillatorMethods(unittest.TestCase):
