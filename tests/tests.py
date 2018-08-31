@@ -160,13 +160,13 @@ class TestRSPTMethods(unittest.TestCase):
         zero_states = zero_states[zero_states['v3'] % 2 == 1]
         zero_states.index = range(len(zero_states))
         print(zero_states)
-        Wmat = RSPT.fill_wmat2(anh_coefs, zero_states)
+        Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
         Hmat = Wmat
         Hmat.flat[::Hmat.shape[0] + 1] += zero_states['E']
         time1 = time.time()
         for i in range(85):
             print(Hmat[1, i])
-        Eigh_values, Eigh_vectors = np.linalg.eigh(Hmat)
+        Eigh_values, _ = np.linalg.eigh(Hmat)
         time2 = time.time()
         Eigh_values -= 1879.8061137558
         print(Eigh_values)

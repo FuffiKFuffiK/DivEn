@@ -4,8 +4,6 @@ numerical analysis of molecular Hamiltonians
 
 import pandas as pd
 import numpy as np
-import time
-import sys
 
 import supp
 import harm_oscill
@@ -95,61 +93,6 @@ def fill_wmat(anh_coefs, zero_states):
     Perturbation matrix of the system of anharmonic oscillators
     """
 
-    N = len(zero_states)
-    Nv = len(zero_states.columns) - 1
-    Wmat = np.empty(shape=(N, N))
-
-    for i in range(N):
-        for j in range(i, N):
-            Wmat[i, j] = 0
-            for k, coef in enumerate(anh_coefs['k']):
-                time1 = []
-                time1.append(time.time())
-                v1 = np.array([zero_states.iloc[i]['v' + str(l + 1)]
-                               for l in range(Nv)], dtype=np.int32)
-                time1.append(time.time())
-                v2 = v1 if i == j else np.array([zero_states.iloc[j]['v' + str(l + 1)]
-                                                 for l in range(Nv)], dtype=np.int32)
-                time1.append(time.time())
-                dv = abs(v2 - v1)
-                time1.append(time.time())
-                
-                v = v1 if i == j else [max(v1[l], v2[l]) for l in range(Nv)]
-                time1.append(time.time())
-                n = np.array([anh_coefs.iloc[k]['ik' + str(l + 1)] for l in range(Nv)])
-                time1.append(time.time())
-                if not any(harm_oscill.ZeroEl(n[l], dv[l]) for l in range(Nv)):
-                    Wmat[i, j] += np.prod([harm_oscill.MatElWeight(n[l], dv[l], v[l])
-                                          for l in range(Nv)]) * coef
-                time1.append(time.time())
-            Wmat[j, i] = Wmat[i, j]
-            time1.append(time.time())
-        time2 = [time1[t] - time1[t - 1] for t in range(1, len(time1))]
-        print(time2)
-        sys.exit()
-    return Wmat
-
-
-@supp.timing
-def fill_wmat2(anh_coefs, zero_states):
-    """Procedure to fill perturbation matrix as a
-    system of anharmonic oscillators
-
-    Parameters
-    ----------
-    anh_coefs: Pandas DataFrame
-        Contains anharmonic coefficients and theit indices
-        Note: number of indices equals length of the frequencies
-        vector
-    zero_states: Pandas DataFrame
-        Contains zero order approximation (energies) and
-        corresponding quantum numbers
-
-    Returns
-    -------
-    Perturbation matrix of the system of anharmonic oscillators
-    """
-
     v = []
     dv = []
     vmat = []
@@ -171,18 +114,65 @@ def fill_wmat2(anh_coefs, zero_states):
     for i in range(N):
         for j in range(i, N):
             for k, coef in enumerate(anh_coefs['k']):
-                if i == 0 and j == 4:
-                    print([(coef_ind[k][l], dv[l][i][j], vmat[l][i][j]) for l in range(Nv)])
-                p = [Weights_dict.get((coef_ind[k][l], dv[l][i][j], vmat[l][i][j])) for l in range(Nv)]
-                if i == 0 and j == 4:
-                    print(p)
-                    print(coef)
+                p = [Weights_dict.get((coef_ind[k][l], dv[l][i][j], vmat[l][i][j]))
+                     for l in range(Nv)]
                 if all(p):
                     Wmat[i, j] += np.prod(p) * coef
-            #if j == 1:
-            #    sys.exit()
 
     i_lower = np.tril_indices(N, -1)
     Wmat[i_lower] = Wmat.T[i_lower]
 
     return Wmat
+
+
+def add_zero_approx(Wmat, zero_states):
+    """Procedure to add zero order approximation
+    to the perturbation matrix
+
+    Parameters
+    ----------
+    Wmat: Numpy 2d array
+        Contains perturbation matrix
+    zero_states: Pandas DataFrame
+        Contains zero order approximation (energies) and
+        corresponding quantum numbers
+
+    Returns
+    -------
+    Hamiltonian matrix H = W + E0
+    """
+
+    Hmat = Wmat.copy()
+    Hmat.flat[::Hmat.shape[0] + 1] += zero_states['E']
+    return Hmat
+
+
+@supp.timing
+def diag_hmat(Hmat, zero_states):
+    """Procedure to add zero order approximation
+    to the perturbation matrix
+
+    Parameters
+    ----------
+    Hmat: Numpy 2d array
+        Contains perturbation matrix
+    zero_states: Pandas DataFrame
+        Contains zero order approximation (energies) and
+        corresponding quantum numbers
+
+    Returns
+    -------
+    Pandas DataFrame, containing vibrational energies,
+    retrieved by diagonalisation procedure
+    """
+
+    Eigh_values, Eigh_vectors = np.linalg.eigh(Hmat)
+
+    #Creating and filling new DataFrame for vibrational states
+    vib_states = zero_states
+    new_index = np.square(np.absolute(Eigh_vectors)).argmax(axis=1)
+    vib_states.index = new_index
+    vib_states.sort_index(inplace=True)
+    vib_states['E'] = Eigh_values
+
+    return vib_states
