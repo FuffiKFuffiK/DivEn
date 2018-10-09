@@ -182,4 +182,4 @@ def diag_hmat(Hmat, zero_states, E0=None):
 
     vib_states['E'] -= E0
 
-    return vib_states
+    return vib_states, Eigh_vectors

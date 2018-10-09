@@ -82,7 +82,6 @@ def MatElWeightGen(vmax):
     for v in range(vmax + 1):
         yield 0.0625 * (v * (v - 1) * (v - 2) * (v - 3) * (v - 4)
                         * (v - 5) * (v - 6) * (v - 7)) ** 0.5
-    
     #n >= 9
     while True:
         yield 0

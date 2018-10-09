@@ -171,7 +171,7 @@ class TestRSPTMethods(unittest.TestCase):
         self.assertAlmostEqual(Wmat[1, 27], -25.35)
         self.assertEqual(Wmat[1, 37], 0)
         Hmat = RSPT.add_zero_approx(Wmat, zero_states)
-        vib_states = RSPT.diag_hmat(Hmat, zero_states, E0=1879.806113755815)
+        vib_states, _ = RSPT.diag_hmat(Hmat, zero_states, E0=1879.806113755815)
         self.assertAlmostEqual(vib_states.loc[0]['E'], 1628.63798506)
         self.assertEqual(vib_states.loc[20]['v1'], 0)
         self.assertEqual(vib_states.loc[20]['v2'], 2)
