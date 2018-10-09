@@ -182,6 +182,25 @@ class TestRSPTMethods(unittest.TestCase):
         mol_io.write_states(path + 'vib_states.txt', vib_states)
 
 
+    def test_shift_freqs(self):
+        """Testing correctness of frequency shifts
+        """
+        freqs = mol_io.read_freqs(self.fname_freqs)
+        anh_coefs = mol_io.read_anh_coefs(self.fname_coefs)
+        zero_states = RSPT.zero_approximation(4000, freqs['omega'])
+        Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
+        RSPT.shift_freqs([20, 40, 60], zero_states, Wmat)
+        self.assertEqual(zero_states.loc[0]['E'], 1950.1)
+        self.assertEqual(zero_states.loc[1]['E'], 2746.0)
+        self.assertEqual(zero_states.loc[2]['E'], 3327.3)
+        self.assertEqual(zero_states.loc[3]['E'], 3541.9)
+        self.assertEqual(zero_states.loc[4]['E'], 3677.2)
+        self.assertEqual(Wmat[0, 0], -50.525)
+        self.assertEqual(Wmat[1, 1], -104.625)
+        self.assertEqual(Wmat[4, 4], -79.025)
+        self.assertAlmostEqual(Wmat[2, 3], 17.7, places=8)
+
+
 class TestHarmOscillatorMethods(unittest.TestCase):
     """Class for testing Harmonic oscillator methods
     """
