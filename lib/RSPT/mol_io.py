@@ -3,6 +3,7 @@
 
 import pandas as pd
 import numpy as np
+import csv
 
 
 def read_freqs(fname):
@@ -41,7 +42,7 @@ def write_states(fname, states):
     Possible options: zero_states, vib_states, etc.
     """
 
-    fmt = '%4d ' * (len(states.columns) - 1)
-    fmt = fmt + '%24.16f'
-    np.savetxt(fname, states.values, fmt=fmt)
+    states.to_csv(fname, index=False, sep='\t',
+                  float_format='%20.16f', quoting=csv.QUOTE_NONE)
+
     return 1
