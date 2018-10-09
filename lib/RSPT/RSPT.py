@@ -183,3 +183,27 @@ def diag_hmat(Hmat, zero_states, E0=None):
     vib_states['E'] -= E0
 
     return vib_states, Eigh_vectors
+
+
+def shift_freqs(shifts, zero_states, Wmat):
+    """Method to shift frequencies in order to push resonant energy
+    states apart. Changes zero_states and Wmat accordingly
+
+    Parameters
+    ----------
+    shifts: array of floats
+        Contains shift values for each frequency, should have the length
+        equal to the number of normal frequencies of the molecule
+    zero_states: Pandas DataFrame
+        Contains zero order approximation (energies) and
+        corresponding quantum numbers
+    Wmat: Numpy 2d array
+        Contains perturbation matrix
+    """
+
+    labels = zero_states.columns[:-1]
+    states_shifts = np.dot(np.array(zero_states[labels]) + 0.5, shifts)
+    zero_states['E'] += states_shifts
+    Wmat.flat[::Wmat.shape[0] + 1] -= states_shifts
+
+    return 1
