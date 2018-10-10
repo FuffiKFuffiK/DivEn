@@ -4,6 +4,7 @@ numerical analysis of molecular Hamiltonians
 
 import pandas as pd
 import numpy as np
+import mpmath
 
 import supp
 import harm_oscill
@@ -207,3 +208,25 @@ def shift_freqs(shifts, zero_states, Wmat):
     Wmat.flat[::Wmat.shape[0] + 1] -= states_shifts
 
     return 1
+
+
+def RSPT_series(i, zero_states, Wmat, Nmax=100, prec=50):
+    """Procedure to calculate coefficients of RSPT series
+    for the given state i
+
+    Parameters
+    ----------
+    i: int
+        Number of the state in zero_states besis
+    zero_states: Pandas DataFrame
+        Contains zero order approximation (energies) and
+        corresponding quantum numbers
+    Wmat: Numpy 2d array
+        Contains perturbation matrix
+    Nmax: int
+        Number of coefficients to calculate. 100 by default
+    prec: int
+        Precision in decimal places. 50 by default.
+    """
+
+    pass
