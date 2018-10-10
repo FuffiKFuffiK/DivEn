@@ -1,9 +1,8 @@
 """Module containing input/output methods for DivEn project
 """
 
-import pandas as pd
-import numpy as np
 import csv
+import pandas as pd
 
 
 def read_freqs(fname):
