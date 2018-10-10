@@ -210,23 +210,42 @@ def shift_freqs(shifts, zero_states, Wmat):
     return 1
 
 
-def RSPT_series(i, zero_states, Wmat, Nmax=100, prec=50):
+def RSPT_series(q, zero_states, Wmat, Nmax=100, prec=50):
     """Procedure to calculate coefficients of RSPT series
-    for the given state i
+    for the given state q
 
     Parameters
     ----------
-    i: int
+    q: int
         Number of the state in zero_states besis
     zero_states: Pandas DataFrame
         Contains zero order approximation (energies) and
         corresponding quantum numbers
     Wmat: Numpy 2d array
-        Contains perturbation matrix
+        Contains perturbation matrix. Size of it should be
+        equal to size of zero_states
     Nmax: int
         Number of coefficients to calculate. 100 by default
     prec: int
         Precision in decimal places. 50 by default.
     """
 
-    pass
+    #Setting precision for calculating series coefficients
+    mpmath.mp.dps = prec
+
+    #Precalculating energy denominators
+    E_d = np.array(1 / (zero_states['E'] - zero_states['E'].iloc[q]))
+    E_d[q] = 0
+
+    e = np.array(shape=Nmax)
+    #Calculating RSPT coefficients recursively
+    psi = Wmat[q, :] * E_d
+    e[0] = Wmat[q, q]
+    e[1] = np.dot(psi, Wmat[q, :])
+    S = np.zeros(shape=Wmat.shape[0])
+    for i in range(2, Nmax):
+        S += psi * e[i - 2]
+        psi = E_d * (np.dot(psi, Wmat) - S)
+        e[i] = np.dot(psi, Wmat[q, :])
+
+    return e
