@@ -210,8 +210,11 @@ class TestRSPTMethods(unittest.TestCase):
         zero_states = zero_states[zero_states['v3'] % 2 == 1]
         zero_states.index = range(len(zero_states))
         Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
-        e_series = RSPT.RSPT_series(4, zero_states, Wmat)
-        #print(e_series)
+        pt_series = RSPT.RSPT_series(4, zero_states, Wmat)
+        self.assertAlmostEqual(pt_series[0], 53.475)
+        self.assertAlmostEqual(pt_series[3], -38.752971315494243760)
+        self.assertAlmostEqual(pt_series[8], -0.03421929997027892200)
+        self.assertAlmostEqual(pt_series[93], -.32969409288191857879)
 
 
 class TestHarmOscillatorMethods(unittest.TestCase):
