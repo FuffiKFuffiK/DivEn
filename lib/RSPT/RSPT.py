@@ -234,7 +234,7 @@ def RSPT_series(q, zero_states, Wmat, Nmax=100, prec=50):
     mpmath.mp.dps = prec
 
     #Precalculating energy denominators
-    E_d = np.array(1 / (zero_states['E'] - zero_states['E'].iloc[q]))
+    E_d = np.array(1 / (zero_states['E'].iloc[q] - zero_states['E']))
     E_d[q] = 0
 
     e = np.empty(shape=(Nmax,))
