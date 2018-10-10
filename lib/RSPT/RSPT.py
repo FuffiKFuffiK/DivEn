@@ -238,14 +238,14 @@ def RSPT_series(q, zero_states, Wmat, Nmax=100, prec=50):
     E_d[q] = 0
 
     e = np.empty(shape=(Nmax,))
+    psi = np.empty(shape=(Nmax, Wmat.shape[0]))
     #Calculating RSPT coefficients recursively
-    psi = Wmat[q, :] * E_d
+    psi[0, :] = Wmat[q, :] * E_d
     e[0] = Wmat[q, q]
-    e[1] = np.dot(psi, Wmat[q, :])
-    S = np.zeros(shape=(Wmat.shape[0],))
+    e[1] = np.dot(psi[0, :], Wmat[q, :])
     for i in range(2, Nmax):
-        S += psi * e[i - 2]
-        psi = E_d * (np.dot(psi, Wmat) - S)
-        e[i] = np.dot(psi, Wmat[q, :])
+        S = np.dot(psi[:i - 1, :].T, e[:i - 1][::-1])
+        psi[i - 1, :] = E_d * (np.dot(psi[i - 2, :], Wmat) - S)
+        e[i] = np.dot(psi[i - 1, :], Wmat[q, :])
 
     return e
