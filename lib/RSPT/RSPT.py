@@ -237,12 +237,12 @@ def RSPT_series(q, zero_states, Wmat, Nmax=100, prec=50):
     E_d = np.array(1 / (zero_states['E'] - zero_states['E'].iloc[q]))
     E_d[q] = 0
 
-    e = np.array(shape=Nmax)
+    e = np.empty(shape=(Nmax,))
     #Calculating RSPT coefficients recursively
     psi = Wmat[q, :] * E_d
     e[0] = Wmat[q, q]
     e[1] = np.dot(psi, Wmat[q, :])
-    S = np.zeros(shape=Wmat.shape[0])
+    S = np.zeros(shape=(Wmat.shape[0],))
     for i in range(2, Nmax):
         S += psi * e[i - 2]
         psi = E_d * (np.dot(psi, Wmat) - S)

@@ -201,6 +201,19 @@ class TestRSPTMethods(unittest.TestCase):
         self.assertAlmostEqual(Wmat[2, 3], 17.7, places=8)
 
 
+    def test_RSPT_series(self):
+        """Testing correctness of RSPT series
+        """
+        freqs = mol_io.read_freqs(self.fname_freqs)
+        anh_coefs = mol_io.read_anh_coefs(self.fname_coefs)
+        zero_states = RSPT.zero_approximation(13000, freqs['omega'])
+        zero_states = zero_states[zero_states['v3'] % 2 == 1]
+        zero_states.index = range(len(zero_states))
+        Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
+        e_series = RSPT.RSPT_series(4, zero_states, Wmat)
+        print(e_series)
+
+
 class TestHarmOscillatorMethods(unittest.TestCase):
     """Class for testing Harmonic oscillator methods
     """
