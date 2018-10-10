@@ -211,7 +211,7 @@ class TestRSPTMethods(unittest.TestCase):
         zero_states.index = range(len(zero_states))
         Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
         e_series = RSPT.RSPT_series(4, zero_states, Wmat)
-        print(e_series)
+        #print(e_series)
 
 
 class TestHarmOscillatorMethods(unittest.TestCase):
