@@ -210,7 +210,7 @@ class TestRSPTMethods(unittest.TestCase):
         zero_states = zero_states[zero_states['v3'] % 2 == 1]
         zero_states.index = range(len(zero_states))
         Wmat = RSPT.fill_wmat(anh_coefs, zero_states)
-        pt_series = RSPT.RSPT_series(14, zero_states, Wmat)
+        pt_series = RSPT.RSPT_series(4, zero_states, Wmat)
 
         self.assertAlmostEqual(pt_series[0], 53.475)
         self.assertAlmostEqual(pt_series[3], -38.752971315494243760)
