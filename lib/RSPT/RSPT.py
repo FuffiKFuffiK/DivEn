@@ -231,7 +231,7 @@ def RSPT_series(q, zero_states, Wmat, Nmax=100, prec=50):
     """
 
     #Setting precision for calculating series coefficients
-    mpmath.mp.dps = prec
+    #mpmath.mp.dps = prec
 
     #Precalculating energy denominators
     E_d = np.array(1 / (zero_states['E'].iloc[q] - zero_states['E']))
